@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convenience Store Management System</title>
+    <script src="https://unpkg.com/react/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+</head>
+<body class="bg-cover bg-center" style="background-image: url('bg.jpg');">
+    <div id="root" class="flex items-center justify-center min-h-screen">
+        <div class="bg-white bg-opacity-70 p-8 rounded-lg shadow-lg w-full max-w-6xl flex">
+            <!-- Form Section -->
+            <div class="w-1/2 pr-8">
+                <h1 class="text-2xl font-bold mb-4 text-center">Convenience Store Management System</h1>
+
+                <form class="space-y-4" onsubmit="return false;">
+                    <div class="flex items-center">
+                        <label class="w-1/4">Product ID:</label>
+                        <input type="text" id="productId" class="w-3/4 p-2 border rounded" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Name:</label>
+                        <input type="text" id="productName" class="w-3/4 p-2 border rounded" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Cost Price:</label>
+                        <input type="number" id="productCostPrice" class="w-3/4 p-2 border rounded" min="0" step="0.01" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Retail Price:</label>
+                        <input type="number" id="productRetailPrice" class="w-3/4 p-2 border rounded" min="0" step="0.01" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Quantity:</label>
+                        <input type="number" id="productQuantity" class="w-3/4 p-2 border rounded" min="0" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Manufacture Date:</label>
+                        <input type="date" id="productManufactureDate" class="w-3/4 p-2 border rounded" required />
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-1/4">Expiry Date:</label>
+                        <input type="date" id="productExpiryDate" class="w-3/4 p-2 border rounded" required />
+                    </div>
+                    <div id="formError" class="text-red-500 text-sm hidden">Please fill out all fields correctly.</div>
+                    <div class="flex justify-between">
+                        <button type="button" class="bg-green-500 text-white rounded px-2 py-2 hover:bg-green-600" onclick="handleAddProduct()">Add Product</button>
+                        <button type="button" class="bg-red-500 text-white rounded px-2 py-2 hover:bg-red-600" onclick="handleDeleteProduct()">Delete Product</button>
+                        <button type="button" class="bg-blue-500 text-white rounded px-2 py-2 hover:bg-blue-600" onclick="handleUpdateProduct()">Update Product</button>
+                        <button type="button" class="bg-yellow-500 text-white rounded px-2 py-2 hover:bg-yellow-600" onclick="handlePurchaseProduct()">Purchase Product</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Product Table Section -->
+            <div class="w-1/2 pl-8">
+                <h1 class="text-xl font-semibold mb-4 text-center">Product List</h1>
+                
+                <!-- Search bar -->
+                <div class="flex items-center mb-4">
+                    <input type="text" id="searchInput" class="w-full p-2 border rounded" placeholder="Search by ID or Name..." onkeyup="searchProduct()">
+                </div>
+
+                <!-- Table to display products -->
+                <table class="w-full mt-4 border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="border p-2">ID</th>
+                            <th class="border p-2">Name</th>
+                            <th class="border p-2">Cost Price</th>
+                            <th class="border p-2">Retail Price</th>
+                            <th class="border p-2">Manufacture Date</th>
+                            <th class="border p-2">Expiry Date</th>
+                            <th class="border p-2">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productList">
+                        <!-- Products will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
