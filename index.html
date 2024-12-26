@@ -55,21 +55,12 @@
                         <button type="button" class="bg-yellow-500 text-white rounded px-2 py-2 hover:bg-yellow-600" onclick="handlePurchaseProduct()">Purchase Product</button>
                     </div>
                 </form>
-
-                <!-- CSV Buttons -->
-                <div class="mt-4 flex justify-between">
-                    <button type="button" class="bg-purple-500 text-white rounded px-2 py-2 hover:bg-purple-600" onclick="downloadCSV()">Download CSV</button>
-                    <label class="bg-gray-500 text-white rounded px-2 py-2 hover:bg-gray-600 cursor-pointer">
-                        <input type="file" id="uploadCSV" accept=".csv" class="hidden" onchange="uploadCSV(event)" />
-                        Upload CSV
-                    </label>
-                </div>
             </div>
 
             <!-- Product Table Section -->
             <div class="w-1/2 pl-8">
                 <h1 class="text-xl font-semibold mb-4 text-center">Product List</h1>
-
+                
                 <!-- Search bar -->
                 <div class="flex items-center mb-4">
                     <input type="text" id="searchInput" class="w-full p-2 border rounded" placeholder="Search by ID or Name..." onkeyup="searchProduct()">
