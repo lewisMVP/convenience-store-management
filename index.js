@@ -1,3 +1,23 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Verify element exists
+    const downloadButton = document.getElementById('csvDownload');
+    if (!downloadButton) {
+        console.error('Download button not found! Please check if element with id "csvDownload" exists.');
+        return;
+    }
+    
+    // Add event listener
+    downloadButton.addEventListener('click', downloadCSV);
+
+    document.getElementById("addProductButton").addEventListener("click", handleAddProduct);
+    document.getElementById("deleteProductButton").addEventListener("click", handleDeleteProduct);
+    document.getElementById("updateProductButton").addEventListener("click", handleUpdateProduct);
+    document.getElementById("purchaseProductButton").addEventListener("click", handlePurchaseProduct);
+    document.getElementById("searchButton").addEventListener("click", searchProduct);
+    document.getElementById("csvUpload").addEventListener("change", handleFileUpload);
+    document.getElementById("csvDownload").addEventListener("click", downloadCSV);
+});
+
 class ProductNode {
     constructor(id, name, costPrice, retailPrice, quantity, manufactureDate, expiryDate) {
         this.id = id;
@@ -140,6 +160,10 @@ class DoublyLinkedList {
         }
         return result;
     }
+
+    getAllProducts() {
+        return this.displayProducts();
+    }
 }
 
 const inventory = new DoublyLinkedList();
@@ -275,9 +299,33 @@ function clearInputs() {
     document.getElementById("productExpiryDate").value = "";
 }
 
-document.getElementById("addProductButton").addEventListener("click", handleAddProduct);
-document.getElementById("deleteProductButton").addEventListener("click", handleDeleteProduct);
-document.getElementById("updateProductButton").addEventListener("click", handleUpdateProduct);
-document.getElementById("purchaseProductButton").addEventListener("click", handlePurchaseProduct);
-document.getElementById("searchButton").addEventListener("click", searchProduct);
-
+function downloadCSV() {
+    try {
+        // Get products using the correct method
+        const products = inventory.getAllProducts();
+        if (!products || products.length === 0) {
+            alert('No products to download');
+            return;
+        }
+        
+        // Rest of download logic
+        const headers = 'ID,Name,Cost Price,Retail Price,Quantity,Manufacture Date,Expiry Date\n';
+        const rows = products.map(p => 
+            `${p.id},${p.name},${p.costPrice},${p.retailPrice},${p.quantity},${p.manufactureDate},${p.expiryDate}`
+        ).join('\n');
+        
+        const csvContent = headers + rows;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = 'inventory.csv';
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+        window.URL.revokeObjectURL(elem.href);
+        
+    } catch (error) {
+        console.error('Download failed:', error);
+        alert('Failed to download CSV file');
+    }
+}
