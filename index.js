@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("purchaseProductButton").addEventListener("click", handlePurchaseProduct);
     document.getElementById("searchButton").addEventListener("click", searchProduct);
     document.getElementById("csvUpload").addEventListener("change", handleFileUpload);
-    document.getElementById("csvDownload").addEventListener("click", downloadCSV);
 });
 
 class ProductNode {
@@ -256,37 +255,93 @@ function handleUpdateProduct() {
     const updatedCostPrice = isNaN(costPrice) ? existingProduct.costPrice : costPrice;
     const updatedRetailPrice = isNaN(retailPrice) ? existingProduct.retailPrice : retailPrice;
     const updatedQuantity = isNaN(quantity) ? existingProduct.quantity : quantity;
-    const updatedManufactureDate = manufactureDate ? manufactureDate : existingProduct.manufactureDate;
-    const updatedExpiryDate = expiryDate ? expiryDate : existingProduct.expiryDate;
+    const updatedManufactureDate = manufactureDate || existingProduct.manufactureDate;
+    const updatedExpiryDate = expiryDate || existingProduct.expiryDate;
 
     if (inventory.updateProduct(id, updatedName, updatedCostPrice, updatedRetailPrice, updatedQuantity, updatedManufactureDate, updatedExpiryDate)) {
+        renderProducts();
         alert("Product updated successfully.");
+        clearInputs();
     } else {
-        alert("Product not found.");
+        alert("Error updating product.");
     }
-
-    renderProducts();  // Re-render product list after update
-    clearInputs();  // Clear inputs after update
 }
 
 function handlePurchaseProduct() {
     const id = document.getElementById("productId").value;
     const quantity = parseInt(document.getElementById("productQuantity").value);
 
-    const result = inventory.purchaseProduct(id, quantity);
-    if (result.success) {
-        alert(result.message);
-    } else {
-        alert(result.message);
+    if (!id || isNaN(quantity) || quantity <= 0) {
+        alert("Please enter valid product ID and quantity.");
+        return;
     }
-    renderProducts();  // Re-render product list after purchase
-    clearInputs();  // Clear inputs after purchase
+
+    const result = inventory.purchaseProduct(id, quantity);
+
+    alert(result.message);
+    renderProducts();
+    clearInputs();
 }
 
 function searchProduct() {
     const query = document.getElementById("searchInput").value;
-    const products = inventory.searchProducts(query);
-    renderProducts(products);
+
+    if (!query) {
+        renderProducts();
+    } else {
+        const results = inventory.searchProducts(query);
+        renderProducts(results);
+    }
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        alert('Please select a file.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const content = event.target.result;
+        try {
+            // Clear existing inventory
+            inventory.head = null;
+            inventory.tail = null;
+
+            const lines = content.split('\n');
+            lines.forEach(line => {
+                const [id, name, costPrice, retailPrice, quantity, manufactureDate, expiryDate] = line.split(',');
+
+                if (id && name && !isNaN(costPrice) && !isNaN(retailPrice) && !isNaN(quantity)) {
+                    inventory.addProduct(id.trim(), name.trim(), parseFloat(costPrice.trim()), parseFloat(retailPrice.trim()), parseInt(quantity.trim()), manufactureDate.trim(), expiryDate.trim());
+                }
+            });
+            renderProducts();  // Re-render after upload
+            alert('File uploaded successfully.');
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Error processing file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+
+function downloadCSV() {
+    const products = inventory.getAllProducts();
+    let csvContent = "ID,Name,Cost Price,Retail Price,Quantity,Manufacture Date,Expiry Date\n";
+
+    products.forEach(product => {
+        csvContent += `${product.id},${product.name},${product.costPrice},${product.retailPrice},${product.quantity},${product.manufactureDate},${product.expiryDate}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = "inventory.csv";
+    link.click();
 }
 
 function clearInputs() {
@@ -297,35 +352,4 @@ function clearInputs() {
     document.getElementById("productQuantity").value = "";
     document.getElementById("productManufactureDate").value = "";
     document.getElementById("productExpiryDate").value = "";
-}
-
-function downloadCSV() {
-    try {
-        // Get products using the correct method
-        const products = inventory.getAllProducts();
-        if (!products || products.length === 0) {
-            alert('No products to download');
-            return;
-        }
-        
-        // Rest of download logic
-        const headers = 'ID,Name,Cost Price,Retail Price,Quantity,Manufacture Date,Expiry Date\n';
-        const rows = products.map(p => 
-            `${p.id},${p.name},${p.costPrice},${p.retailPrice},${p.quantity},${p.manufactureDate},${p.expiryDate}`
-        ).join('\n');
-        
-        const csvContent = headers + rows;
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const elem = window.document.createElement('a');
-        elem.href = window.URL.createObjectURL(blob);
-        elem.download = 'inventory.csv';
-        document.body.appendChild(elem);
-        elem.click();
-        document.body.removeChild(elem);
-        window.URL.revokeObjectURL(elem.href);
-        
-    } catch (error) {
-        console.error('Download failed:', error);
-        alert('Failed to download CSV file');
-    }
 }
